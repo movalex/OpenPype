@@ -1,3 +1,4 @@
+import platform
 from qtpy import QtCore, QtGui, QtWidgets
 from openpype import resources, style
 
@@ -112,6 +113,10 @@ class ClockifySettings(QtWidgets.QWidget):
 
         input_api_key = QtWidgets.QLineEdit()
         input_api_key.setFrame(True)
+        if platform.system() == "Darvin":
+            input_api_key.setFixedWidth(200)
+            input_api_key.setMaxLength(49)
+        input_api_key.setEchoMode(QtWidgets.QLineEdit.Password)
         input_api_key.setPlaceholderText("e.g. XX1XxXX2x3x4xXxx")
 
         error_label = QtWidgets.QLabel("")
