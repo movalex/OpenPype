@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import platform
 from openpype.lib import PreLaunchHook
 from openpype.hosts.resolve.utils import setup
@@ -47,7 +48,7 @@ class ResolvePrelaunch(PreLaunchHook):
             RESOLVE_SCRIPT_LIB_[current_platform])
         self.launch_context.env["RESOLVE_SCRIPT_LIB"] = RESOLVE_SCRIPT_LIB
 
-        # TODO: add OTIO installation from  `openpype/requirements.py`
+        # TODO: add OTIO installation from `openpype/requirements.py`
         # making sure python <3.9.* is installed at provided path
         python3_home = os.path.normpath(
             self.launch_context.env.get("RESOLVE_PYTHON3_HOME", ""))
@@ -61,19 +62,36 @@ class ResolvePrelaunch(PreLaunchHook):
         self.launch_context.env["PYTHONHOME"] = python3_home
         self.log.info(f"Path to Resolve Python folder: `{python3_home}`...")
 
-        # add to the python path to path
+        PYTHON_PATH_DIRS = {
+            "windows": "Scripts",
+            "darwin" : "bin",
+            "linux"  : "bin"
+        }
+
+        # add to the python path to PATH
         env_path = self.launch_context.env["PATH"]
-        self.launch_context.env["PATH"] = os.pathsep.join([
+        self.launch_context.env["PATH"] = os.pathsep.join( [
             python3_home,
-            os.path.join(python3_home, "Scripts")
+            os.path.join(python3_home, PYTHON_PATH_DIRS.get(current_platform))
         ] + env_path.split(os.pathsep))
 
         self.log.debug(f"PATH: {self.launch_context.env['PATH']}")
 
         # add to the PYTHONPATH
+        
+        python_parent = Path(python3_home)
+        python_major, python_minor = python_parent.name.split(".")[:2]
+        python_lib_folder = f"python{python_major}.{python_minor}"
+
+        PYTHON_LIB_DIRS = {
+            "windows": Path(python3_home, "Lib", "site-packages").as_posix(),
+            "darwin" : Path(python_parent, "lib", python_lib_folder, "site-packages").as_posix(),
+            "linux"  : Path(python_parent, "lib", python_lib_folder, "site-packages").as_posix(),
+        }
+
         env_pythonpath = self.launch_context.env["PYTHONPATH"]
         self.launch_context.env["PYTHONPATH"] = os.pathsep.join([
-            os.path.join(python3_home, "Lib", "site-packages"),
+            os.path.join(python3_home, PYTHON_LIB_DIRS.get(current_platform)),
             os.path.join(RESOLVE_SCRIPT_API, "Modules"),
         ] + env_pythonpath.split(os.pathsep))
 
