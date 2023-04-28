@@ -62,15 +62,14 @@ class ResolvePrelaunch(PreLaunchHook):
 
         # add to the python path to PATH
         env_path = self.launch_context.env["PATH"]
-        self.launch_context.env["PATH"] = os.pathsep.join( [python3_home_str] + env_path.split(os.pathsep))
+        self.launch_context.env["PATH"] = f"{python3_home_str}{os.pathsep}{env_path}"
 
         self.log.debug(f"PATH: {self.launch_context.env['PATH']}")
 
         # add to the PYTHONPATH
         env_pythonpath = self.launch_context.env["PYTHONPATH"]
-        
-        self.launch_context.env["PYTHONPATH"] = os.pathsep.join([Path(resolve_script_api, "Modules").as_posix()
-        ] + env_pythonpath.split(os.pathsep))
+        modules_path = Path(resolve_script_api, "Modules").as_posix()
+        self.launch_context.env["PYTHONPATH"] = f"{modules_path}{os.pathsep}{env_pythonpath}"
 
         self.log.debug(f"PYTHONPATH: {self.launch_context.env['PYTHONPATH']}")
 
