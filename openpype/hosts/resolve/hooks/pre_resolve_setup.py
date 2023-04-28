@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import platform
+import re
 from openpype.lib import PreLaunchHook
 from openpype.hosts.resolve.utils import setup
 
@@ -62,13 +63,13 @@ class ResolvePrelaunch(PreLaunchHook):
         self.launch_context.env["PYTHONHOME"] = python3_home
         self.log.info(f"Path to Resolve Python folder: `{python3_home}`...")
 
+        # add to the python path to PATH
         PYTHON_PATH_DIRS = {
             "windows": "Scripts",
-            "darwin" : "bin",
-            "linux"  : "bin"
+            "darwin" : "",
+            "linux"  : ""
         }
 
-        # add to the python path to PATH
         env_path = self.launch_context.env["PATH"]
         self.launch_context.env["PATH"] = os.pathsep.join( [
             python3_home,
@@ -78,20 +79,18 @@ class ResolvePrelaunch(PreLaunchHook):
         self.log.debug(f"PATH: {self.launch_context.env['PATH']}")
 
         # add to the PYTHONPATH
-        
         python_parent = Path(python3_home)
-        python_major, python_minor = python_parent.name.split(".")[:2]
-        python_lib_folder = f"python{python_major}.{python_minor}"
-
-        PYTHON_LIB_DIRS = {
-            "windows": Path(python3_home, "Lib", "site-packages").as_posix(),
-            "darwin" : Path(python_parent, "lib", python_lib_folder, "site-packages").as_posix(),
-            "linux"  : Path(python_parent, "lib", python_lib_folder, "site-packages").as_posix(),
-        }
+        python_lib_folder = ""
+        python_numbers = re.search("3\.\d{1,}", python_parent)
+        if current_platform in ["darwin, linux"] and python_numbers:
+            python_lib_folder = f"python{python_numbers}".group()
+        else:
+            python_lib_folder = Path("Lib", "site-packages").as_posix()
 
         env_pythonpath = self.launch_context.env["PYTHONPATH"]
+        
         self.launch_context.env["PYTHONPATH"] = os.pathsep.join([
-            os.path.join(python3_home, PYTHON_LIB_DIRS.get(current_platform)),
+            os.path.join(python3_home, python_lib_folder),
             os.path.join(RESOLVE_SCRIPT_API, "Modules"),
         ] + env_pythonpath.split(os.pathsep))
 
