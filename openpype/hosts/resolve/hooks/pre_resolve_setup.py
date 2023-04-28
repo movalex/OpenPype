@@ -79,7 +79,7 @@ class ResolvePrelaunch(PreLaunchHook):
         self.log.debug(f"PATH: {self.launch_context.env['PATH']}")
 
         # add to the PYTHONPATH
-        python_parent = Path(python3_home)
+        python_parent = Path(python3_home).as_posix()
         python_lib_folder = ""
         python_numbers = re.search("3\.\d{1,}", python_parent)
         if current_platform in ["darwin, linux"] and python_numbers:
