@@ -6,7 +6,7 @@ import platform
 
 from typing import Union
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 from pymongo import MongoClient
 from pymongo.errors import (
