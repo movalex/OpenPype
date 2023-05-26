@@ -42,7 +42,7 @@ def should_add_certificate_path_to_mongo_url(mongo_url):
     add_certificate = False
     # Check if url 'ssl' or 'tls' are set to 'true'
     for key in ("ssl", "tls"):
-        if key in query and "true" in query.get(key):
+        if key in query and "true" in query[key]:
             add_certificate = True
             break
 
