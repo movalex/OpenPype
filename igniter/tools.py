@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """Tools used in **Igniter** GUI."""
+import certifi
 import os
-from typing import Union
-from urllib.parse import urlparse, parse_qs
-from pathlib import Path
 import platform
 
-import certifi
+from typing import Union
+from pathlib import Path
+from urllib.parse import urlparse
+
 from pymongo import MongoClient
 from pymongo.errors import (
     ServerSelectionTimeoutError,
@@ -34,13 +35,14 @@ def should_add_certificate_path_to_mongo_url(mongo_url):
     which is valid for it. To add the certificate path url must have scheme
     'mongodb+srv' or has 'ssl=true' or 'tls=true' in url query.
     """
+
     parsed = urlparse(mongo_url)
     query = parse_qs(parsed.query)
     lowered_query_keys = set(key.lower() for key in query.keys())
     add_certificate = False
     # Check if url 'ssl' or 'tls' are set to 'true'
     for key in ("ssl", "tls"):
-        if key in query and "true" in query["ssl"]:
+        if key in query and "true" in query.get(key):
             add_certificate = True
             break
 
@@ -51,6 +53,7 @@ def should_add_certificate_path_to_mongo_url(mongo_url):
     # Check if url does already contain certificate path
     if add_certificate and "tlscafile" in lowered_query_keys:
         add_certificate = False
+
     return add_certificate
 
 
