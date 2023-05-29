@@ -98,10 +98,16 @@ def validate_comp_prefs(comp=None, force_repair=False):
     This does *not* validate frameStart, frameEnd, handleStart and handleEnd.
     """
 
+    log = Logger.get_logger("validate_comp_prefs")
+
     if comp is None:
         comp = get_current_comp()
+        try:
+            log.debug("loaded comp: ", comp.GetAttrs()["COMPS_Name"])
+        except KeyError:
+            log.debug("No comp found, skipping")
+            return
 
-    log = Logger.get_logger("validate_comp_prefs")
 
     fields = [
         "name",
