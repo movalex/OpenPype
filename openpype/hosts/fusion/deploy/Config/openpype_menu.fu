@@ -22,9 +22,9 @@
     },
     Action
     {
-        ID = "OpenPype_Install_PySide2",
+        ID = "OpenPype_Install_PySide",
         Category = "OpenPype",
-        Name = "Install PySide2",
+        Name = "Install PySide",
 
         Targets =
         {
@@ -52,7 +52,7 @@
                 "OpenPype_Menu{}",
                 "_",
                 Sub "Admin" {
-                    "OpenPype_Install_PySide2{}"
+                    "OpenPype_Install_PySide{}"
                 }
             }
         },

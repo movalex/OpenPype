@@ -3,6 +3,17 @@
 import os
 import subprocess
 import importlib
+import platform
+from install_pip_package import pip_install
+from openpype.hosts.fusion import FUSION_VERSIONS_DICT
+
+
+def get_pyside_version() -> str:
+    os_platform = platform.system()
+    pyside_version = "PySide2"
+    if os_platform == "Darwin":
+        pyside_version = "PySide6"
+    return pyside_version
 
 
 try:
@@ -13,17 +24,14 @@ try:
     print(f"Qt path: {mod.__file__}")
     print("Qt library found, nothing to do..")
 
-except ImportError:
+except Exception:
+    fusion_version = int(app.Version)
+    fusion_python_home, _ = FUSION_VERSIONS_DICT.get(fusion_version)
+    print(os.environ.get(fusion_python_home))
     print("Assuming no Qt library is installed..")
-    print('Installing PySide2 for Python 3.6: '
-          f'{os.environ["FUSION16_PYTHON36_HOME"]}')
-
-    # Get full path to python executable
-    exe = "python.exe" if os.name == 'nt' else "python"
-    python = os.path.join(os.environ["FUSION16_PYTHON36_HOME"], exe)
-    assert os.path.exists(python), f"Python doesn't exist: {python}"
-
-    # Do python -m pip install PySide2
-    args = [python, "-m", "pip", "install", "PySide2"]
-    print(f"Args: {args}")
-    subprocess.Popen(args)
+    print(
+        "Installing PySide package for "
+        f"{os.environ[fusion_python_home]}"
+    )
+    pyside_version = get_pyside_version()
+    pip_install(pyside_version)
