@@ -33,4 +33,4 @@ except Exception:
         f"{os.environ.get(fusion_python_home)}"
     )
     pyside_version = get_pyside_version()
-    pip_install(pyside_version)
+    pip_install(pyside_version, fusion_python_home)
