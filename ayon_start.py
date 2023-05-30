@@ -236,7 +236,14 @@ def set_global_environments() -> None:
     local_envs = local_settings.get('environments')
     if local_envs:
         scale_method = local_envs.get("QT_SCALE_FACTOR_ROUNDING_POLICY")
-        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = scale_method
+        if scale_method in (
+            "Round",
+            "Ceil",
+            "Floor",
+            "RoundPreferFloor",
+            "PassThrough",
+        ):
+            os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = scale_method
 
 
 def set_addons_environments():
