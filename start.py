@@ -304,20 +304,6 @@ def set_openpype_global_environments() -> None:
     # Change scale factor only if is not set
     if "QT_AUTO_SCREEN_SCALE_FACTOR" not in os.environ:
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    # Change QT scale rounding policy if it is set in local settings
-    # Possible values are Round, Ceil, Floor, RoundPreferFloor, PassThrough
-    local_settings = get_local_settings()
-    local_envs = local_settings.get('environments')
-    if local_envs:
-        scale_method = local_envs.get("QT_SCALE_FACTOR_ROUNDING_POLICY")
-        if scale_method in (
-            "Round",
-            "Ceil",
-            "Floor",
-            "RoundPreferFloor",
-            "PassThrough",
-        ):
-            os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = scale_method
 
 
 def run(arguments: list, env: dict = None) -> int:
