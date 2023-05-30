@@ -13,9 +13,9 @@ def get_python_executable(python_home) -> str:
     if platform.system() == "Windows":
         python_executable = python_home / "python.exe"
     else:
-        python_executable = python_home / "bin" / "python3"
+        python_executable = python_home.parent / "bin" / "python3"
     if not python_executable.exists():
-        print(f"No Python executable found in {python_home}")
+        print(f"No Python executable found at {python_home}")
         return
     return python_executable.as_posix()
 
@@ -47,7 +47,8 @@ def pip_install(package: str, fusion_python_home=None):
         fusion_python_home = get_python_home()
 
     python_executable = get_python_executable(fusion_python_home)
-
+    if not python_executable:
+        return
     print(f"Installing {package}")
     run_installation_command(python_executable, package)
     print("Done.")
