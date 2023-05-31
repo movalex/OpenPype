@@ -2,7 +2,7 @@ import sys
 
 from qtpy import QtWidgets, QtCore, QtGui
 
-from openpype.tools.utils import host_tools
+from openpype.tools.utils import host_tools, get_openpype_qt_app
 from openpype.style import load_stylesheet
 from openpype.lib import register_event_callback
 from openpype.hosts.fusion.scripts import (
@@ -169,7 +169,7 @@ class OpenPypeMenu(QtWidgets.QWidget):
 
 
 def launch_openpype_menu():
-    app = QtWidgets.QApplication(sys.argv)
+    app = get_openpype_qt_app()
 
     pype_menu = OpenPypeMenu()
 
