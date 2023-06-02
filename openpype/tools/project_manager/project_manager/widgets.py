@@ -1,4 +1,5 @@
 import re
+import copy
 
 from openpype.client import get_projects, create_project
 from .constants import (
@@ -8,6 +9,8 @@ from .constants import (
 from openpype.client.operations import (
     PROJECT_NAME_ALLOWED_SYMBOLS,
     PROJECT_NAME_REGEX,
+    OperationsSession,
+    prepare_subset_update_data,
 )
 from openpype.style import load_stylesheet
 from openpype.pipeline import AvalonMongoDB
@@ -31,7 +34,7 @@ class NameTextEdit(QtWidgets.QLineEdit):
 
         idx = self.cursorPosition()
         before_text = text[0:idx]
-        after_text = text[idx : len(text)]
+        after_text = text[idx:len(text)]
         sub_regex = "[^{}]+".format(NAME_ALLOWED_SYMBOLS)
         new_before_text = re.sub(sub_regex, "", before_text)
         new_after_text = re.sub(sub_regex, "", after_text)
@@ -279,12 +282,11 @@ class CreateProjectDialog(QtWidgets.QDialog):
     def _validate_number(self, value: str, value_type: type):
         try:
             value = value_type(value)
-            print(value)
             if value > 0:
                 return value
         except (ValueError, TypeError):
             return None
-        
+
     def _on_ok_clicked(self):
         if not self._project_name_is_valid or not self._project_code_is_valid:
             return
@@ -292,21 +294,41 @@ class CreateProjectDialog(QtWidgets.QDialog):
         project_name = self.project_name_input.text()
         project_code = self.project_code_input.text()
         project_width = self._validate_number(
-            self.project_width_input.text(), int)
+            self.project_width_input.text(), int
+        )
         project_height = self._validate_number(
-            self.project_height_input.text(), int)
+            self.project_height_input.text(), int
+        )
         project_fps = self._validate_number(
-            self.project_fps_input.text(), float)
+            self.project_fps_input.text(), float
+        )
         library_project = self.library_project_input.isChecked()
-        create_project(
+        project_doc = create_project(
             project_name,
             project_code,
-            project_width,
-            project_height,
-            project_fps,
             library_project,
         )
 
+        data = {
+            "resolutionWidth": project_width,
+            "resolutionHeight": project_height,
+            "fps": project_fps,
+        }
+        session = OperationsSession()
+        new_project_doc = copy.deepcopy(project_doc)
+        new_project_doc["data"] = data
+
+        update_data = prepare_subset_update_data(project_doc, new_project_doc)
+        if not update_data:
+            return
+
+        session.update_entity(
+            project_name,
+            project_doc["type"],
+            project_doc["_id"],
+            update_data,
+        )
+        session.commit()
         self.done(1)
 
     def _get_existing_projects(self):
@@ -386,8 +408,8 @@ class ConfirmProjectDeletion(QtWidgets.QDialog):
             (
                 "<b>WARNING: This cannot be undone.</b><br/><br/>"
                 'Project <b>"{}"</b> with all related data will be'
-                " permanently removed from the database. (This action won't remove"
-                " any files on disk.)"
+                " permanently removed from the database."
+                " (This action won't remove any files on disk.)"
             ).format(project_name)
         )
 
