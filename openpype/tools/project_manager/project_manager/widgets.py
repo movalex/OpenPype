@@ -9,15 +9,15 @@ from openpype.client.operations import (
     PROJECT_NAME_ALLOWED_SYMBOLS,
     PROJECT_NAME_REGEX,
     OperationsSession,
-    prepare_subset_update_data,
 )
 from openpype.style import load_stylesheet
 from openpype.pipeline import AvalonMongoDB
 from openpype.tools.utils import (
     PlaceholderLineEdit,
-    get_warning_pixmap
+    get_warning_pixmap,
+    PixmapLabel,
 )
-from openpype.settings.lib import get_default_settings
+from openpype.settings.lib import get_default_anatomy_settings
 
 from qtpy import QtWidgets, QtCore, QtGui
 
@@ -177,12 +177,6 @@ class CreateProjectDialog(QtWidgets.QDialog):
 
         project_name_label = QtWidgets.QLabel(self)
         project_code_label = QtWidgets.QLabel(self)
-        project_width_label = QtWidgets.QLabel(self)
-        project_height_label = QtWidgets.QLabel(self)
-        project_fps_label = QtWidgets.QLabel(self)
-        project_aspect_label = QtWidgets.QLabel(self)
-        project_frame_start_label = QtWidgets.QLabel(self)
-        project_frame_end_label = QtWidgets.QLabel(self)
 
         btns_widget = QtWidgets.QWidget(self)
         ok_btn = QtWidgets.QPushButton("Ok", btns_widget)
@@ -198,12 +192,6 @@ class CreateProjectDialog(QtWidgets.QDialog):
         main_layout.addWidget(inputs_widget, 0)
         main_layout.addWidget(project_name_label, 1)
         main_layout.addWidget(project_code_label, 1)
-        main_layout.addWidget(project_width_label, 1)
-        main_layout.addWidget(project_height_label, 1)
-        main_layout.addWidget(project_fps_label, 1)
-        main_layout.addWidget(project_aspect_label, 1)
-        main_layout.addWidget(project_frame_start_label, 1)
-        main_layout.addWidget(project_frame_end_label, 1)
         main_layout.addStretch(1)
         main_layout.addWidget(btns_widget, 0)
 
@@ -217,12 +205,6 @@ class CreateProjectDialog(QtWidgets.QDialog):
 
         self.project_name_label = project_name_label
         self.project_code_label = project_code_label
-        self.project_width_label = project_width_label
-        self.project_height_label = project_height_label
-        self.project_fps_label = project_fps_label
-        self.project_aspect_label = project_aspect_label
-        self.project_frame_start_label = project_frame_start_label
-        self.project_frame_end_label = project_frame_end_label
 
         self.project_name_input = project_name_input
         self.project_code_input = project_code_input
@@ -241,8 +223,8 @@ class CreateProjectDialog(QtWidgets.QDialog):
         return self.project_name_input.text()
 
     def get_default_attributes(self):
-        settings = get_default_settings()
-        return settings["project_anatomy"]["attributes"]
+        settings = get_default_anatomy_settings()
+        return settings["attributes"]
 
     def _on_project_name_change(self, value):
         if self._project_code_value is None:
@@ -312,26 +294,18 @@ class CreateProjectDialog(QtWidgets.QDialog):
     def _on_cancel_clicked(self):
         self.done(0)
 
-    def _validate_number(self, value: str, value_type: type):
-        try:
-            value = value_type(value)
-            if value > 0:
-                return value
-        except (ValueError, TypeError):
-            return None
-
     def _on_ok_clicked(self):
         if not self._project_name_is_valid or not self._project_code_is_valid:
             return
 
         project_name = self.project_name_input.text()
         project_code = self.project_code_input.text()
-        project_width = self.project_width_input.text()
-        project_height = self.project_height_input.text()
-        project_fps = self.project_fps_input.text()
-        project_aspect = self.project_aspect_input.text()
-        project_frame_start = self.project_frame_start_input.text()
-        project_frame_end = self.project_frame_end_input.text()
+        project_width = self.project_width_input.value()
+        project_height = self.project_height_input.value()
+        project_fps = self.project_fps_input.value()
+        project_aspect = self.project_aspect_input.value()
+        project_frame_start = self.project_frame_start_input.value()
+        project_frame_end = self.project_frame_end_input.value()
 
         library_project = self.library_project_input.isChecked()
         project_doc = create_project(
@@ -376,42 +350,10 @@ class CreateProjectDialog(QtWidgets.QDialog):
         return project_names, project_codes
 
 
-# TODO PixmapLabel should be moved to 'utils' in other future PR so should be
-#   imported from there
-class PixmapLabel(QtWidgets.QLabel):
-    """Label resizing image to height of font."""
-
-    def __init__(self, pixmap, parent):
-        super(PixmapLabel, self).__init__(parent)
-        self._empty_pixmap = QtGui.QPixmap(0, 0)
-        self._source_pixmap = pixmap
-
-    def set_source_pixmap(self, pixmap):
-        """Change source image."""
-        self._source_pixmap = pixmap
-        self._set_resized_pix()
-
+class ProjectManagerPixmapLabel(PixmapLabel):
     def _get_pix_size(self):
         size = self.fontMetrics().height() * 4
         return size, size
-
-    def _set_resized_pix(self):
-        if self._source_pixmap is None:
-            self.setPixmap(self._empty_pixmap)
-            return
-        width, height = self._get_pix_size()
-        self.setPixmap(
-            self._source_pixmap.scaled(
-                width,
-                height,
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation,
-            )
-        )
-
-    def resizeEvent(self, event):
-        self._set_resized_pix()
-        super(PixmapLabel, self).resizeEvent(event)
 
 
 class ConfirmProjectDeletion(QtWidgets.QDialog):
@@ -425,7 +367,9 @@ class ConfirmProjectDeletion(QtWidgets.QDialog):
         top_widget = QtWidgets.QWidget(self)
 
         warning_pixmap = get_warning_pixmap()
-        warning_icon_label = PixmapLabel(warning_pixmap, top_widget)
+        warning_icon_label = ProjectManagerPixmapLabel(
+            warning_pixmap, top_widget
+        )
 
         message_label = QtWidgets.QLabel(top_widget)
         message_label.setWordWrap(True)
@@ -560,5 +504,6 @@ class FloatScrollWidget(DoubleSpinBoxScrollFixed):
         self.setMaximum(maximum)
         self.setMinimum(minimum)
         self.setDecimals(decimals)
-        self.setSingleStep(step)
+        if step is not None:
+            self.setSingleStep(step)
         self.setButtonSymbols(QtWidgets.QSpinBox.NoButtons)
