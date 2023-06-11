@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "OpenPype"
-version = "3.15.8" # OpenPype
+version = "3.15.9" # OpenPype
 description = "Open VFX and Animation pipeline with support."
 authors = ["OpenPype Team <info@openpype.io>"]
 license = "MIT License"
@@ -118,7 +118,7 @@ version = "5.15.2"
 
 [openpype.qtbinding.darwin]
 package = "PySide6"
-version = "6.4.1"
+version = "6.5.0"
 
 [openpype.qtbinding.linux]
 package = "PySide2"

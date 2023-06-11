@@ -8,7 +8,6 @@ from typing import Union
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
-from openpype.client import mongo
 from pymongo import MongoClient
 from pymongo.errors import (
     ServerSelectionTimeoutError,
@@ -26,6 +25,36 @@ class OpenPypeVersionNotFound(Exception):
 class OpenPypeVersionIncompatible(Exception):
     """OpenPype version is not compatible with the installed one (build)."""
     pass
+
+
+def should_add_certificate_path_to_mongo_url(mongo_url):
+    """Check if should add ca certificate to mongo url.
+
+    Since 30.9.2021 cloud mongo requires newer certificates that are not
+    available on most of workstation. This adds path to certifi certificate
+    which is valid for it. To add the certificate path url must have scheme
+    'mongodb+srv' or has 'ssl=true' or 'tls=true' in url query.
+    """
+
+    parsed = urlparse(mongo_url)
+    query = parse_qs(parsed.query)
+    lowered_query_keys = set(key.lower() for key in query.keys())
+    add_certificate = False
+    # Check if url 'ssl' or 'tls' are set to 'true'
+    for key in ("ssl", "tls"):
+        if key in query and "true" in query[key]:
+            add_certificate = True
+            break
+
+    # Check if url contains 'mongodb+srv'
+    if not add_certificate and parsed.scheme == "mongodb+srv":
+        add_certificate = True
+
+    # Check if url does already contain certificate path
+    if add_certificate and "tlscafile" in lowered_query_keys:
+        add_certificate = False
+
+    return add_certificate
 
 
 def validate_mongo_connection(cnx: str) -> (bool, str):
@@ -46,7 +75,7 @@ def validate_mongo_connection(cnx: str) -> (bool, str):
         "serverSelectionTimeoutMS": os.environ.get("AVALON_TIMEOUT", 2000)
     }
     # Add certificate path if should be required
-    if mongo.should_add_certificate_path_to_mongo_url(cnx):
+    if should_add_certificate_path_to_mongo_url(cnx):
         kwargs["ssl_ca_certs"] = certifi.where()
 
     try:
@@ -120,7 +149,7 @@ def get_openpype_global_settings(url: str) -> dict:
         dict: With settings data. Empty dictionary is returned if not found.
     """
     kwargs = {}
-    if mongo.should_add_certificate_path_to_mongo_url(url):
+    if should_add_certificate_path_to_mongo_url(url):
         kwargs["ssl_ca_certs"] = certifi.where()
 
     try:

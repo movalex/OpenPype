@@ -281,7 +281,7 @@ def set_openpype_global_environments() -> None:
     """Set global OpenPype's environments."""
     import acre
 
-    from openpype.settings import get_general_environments
+    from openpype.settings import get_general_environments, get_local_settings
 
     general_env = get_general_environments()
 
