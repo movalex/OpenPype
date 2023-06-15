@@ -1,20 +1,13 @@
 {
     "imageio": {
+        "activate_host_color_management": true,
         "ocio_config": {
-            "enabled": false,
+            "override_global_config": false,
             "filepath": []
         },
         "file_rules": {
-            "enabled": false,
+            "activate_host_rules": false,
             "rules": {}
-        },
-        "ocio": {
-            "enabled": false,
-            "configFilePath": {
-                "windows": [],
-                "darwin": [],
-                "linux": []
-            }
         }
     },
     "masterprefs": "{\nLocked = true,\nGlobal = {\n  Paths = {\n    Map = {\n      [\"OpenPype:\"] = \"$(OPENPYPE_FUSION)/deploy\",\n      [\"Config:\"] = \"UserPaths:Config;OpenPype:Config\",\n      [\"Scripts:\"] = \"UserPaths:Scripts;Reactor:System/Scripts;OpenPype:Scripts\",\n    },\n  },\n  Script = {\n    PythonVersion = 3,\n    Python3Forced = true\n    },\n  UserInterface = {\n    Language = \"en_US\"\n    },\n  },\n}",
