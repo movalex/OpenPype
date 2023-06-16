@@ -165,6 +165,10 @@ class CreateProjectDialog(QtWidgets.QDialog):
         library_project_input = QtWidgets.QCheckBox(inputs_widget)
 
         inputs_layout = QtWidgets.QFormLayout(inputs_widget)
+        if platform.system() == "Darwin":
+            inputs_layout.setFieldGrowthPolicy(
+                QtWidgets.QFormLayout.AllNonFixedFieldsGrow
+            )
         inputs_layout.setContentsMargins(0, 0, 0, 0)
         inputs_layout.addRow("Project name:", project_name_input)
         inputs_layout.addRow("Project code:", project_code_input)
@@ -497,11 +501,6 @@ class NumScrollWidget(SpinBoxScrollFixed):
         self.setMaximum(maximum)
         self.setMinimum(minimum)
         self.setButtonSymbols(QtWidgets.QSpinBox.NoButtons)
-        if platform.system() == "Darwin":
-            self.setSizePolicy(
-                QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Maximum
-            )
-            self.setMinimumWidth(100)
 
 
 class FloatScrollWidget(DoubleSpinBoxScrollFixed):
@@ -513,8 +512,3 @@ class FloatScrollWidget(DoubleSpinBoxScrollFixed):
         if step is not None:
             self.setSingleStep(step)
         self.setButtonSymbols(QtWidgets.QSpinBox.NoButtons)
-        if platform.system() == "Darwin":
-            self.setSizePolicy(
-                QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Maximum
-            )
-            self.setMinimumWidth(100)
