@@ -102,11 +102,12 @@ def validate_comp_prefs(comp=None, force_repair=False):
 
     if comp is None:
         comp = get_current_comp()
-        try:
-            log.debug("loaded comp: ", comp.GetAttrs()["COMPS_Name"])
-        except KeyError:
-            log.debug("No comp found, skipping")
-            return
+    try:
+        comp_name = comp.GetAttrs()["COMPS_Name"]
+        log.debug(f"Loaded comp: {comp_name}")
+    except KeyError:
+        log.debug("No Fusion comp found, skipping validation")
+        return
 
 
     fields = [
