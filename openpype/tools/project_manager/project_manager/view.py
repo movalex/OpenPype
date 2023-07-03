@@ -10,6 +10,7 @@ from .delegates import (
     TypeDelegate,
     ToolsDelegate
 )
+from .model import TaskItem
 
 from openpype.lib import ApplicationManager
 from .constants import (
@@ -377,7 +378,7 @@ class HierarchyView(QtWidgets.QTreeView):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         rows = self.selectionModel().selectedRows()
         self._source_model.paste(rows, mime_data)
-        self._show_message("Tasks pasted")
+        self._show_message("")
 
     def _delete_items(self, indexes=None):
         if indexes is None:
@@ -563,10 +564,10 @@ class HierarchyView(QtWidgets.QTreeView):
             if item_id in item_ids:
                 continue
             item_ids.add(item_id)
-
-            new_index = self.add_task(parent_index=index)
-            if new_index is None:
-                break
+            parent_item = self._source_model._items_by_id[item_id]
+            task_data = {"name": "Compositing", "type": "Compositing"}
+            task_item = TaskItem(task_data, True)
+            self._source_model.add_item(task_item, parent_item)
 
     def _show_message(self, message):
         """Show message to user."""
