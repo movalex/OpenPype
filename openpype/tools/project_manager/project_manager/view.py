@@ -377,6 +377,7 @@ class HierarchyView(QtWidgets.QTreeView):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         rows = self.selectionModel().selectedRows()
         self._source_model.paste(rows, mime_data)
+        self._show_message("Tasks pasted")
 
     def _delete_items(self, indexes=None):
         if indexes is None:
