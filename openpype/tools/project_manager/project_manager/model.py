@@ -1460,8 +1460,11 @@ class HierarchyModel(QtCore.QAbstractItemModel):
     def _paste_mime_data(self, item, mime_data):
         if not isinstance(item, (AssetItem, TaskItem)):
             return
-
-        raw_data = mime_data.data("application/copy_task")
+        try:
+            raw_data = mime_data.data("application/copy_task")
+        except RuntimeError:
+            self.log.error("Copy the tasks before pasting")
+            return
         if isinstance(raw_data, QtCore.QByteArray):
             # Raw data are already QByteArrat and we don't have to load them
             encoded_data = raw_data
