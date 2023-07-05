@@ -377,6 +377,7 @@ class HierarchyView(QtWidgets.QTreeView):
         mime_data = QtWidgets.QApplication.clipboard().mimeData()
         rows = self.selectionModel().selectedRows()
         self._source_model.paste(rows, mime_data)
+        self._show_message("Tasks pasted")
 
     def _delete_items(self, indexes=None):
         if indexes is None:
@@ -544,6 +545,29 @@ class HierarchyView(QtWidgets.QTreeView):
                     row, 0, index
                 ))
 
+    def _create_tasks(self, indexes):
+        """Create task for each selected asset
+
+        Args:
+            indexes (list): List of QModelIndex where task should be created.
+        """
+        item_ids = set()
+        process_queue = Queue()
+        for index in indexes:
+            if index.column() == 0:
+                process_queue.put(index)
+
+        while not process_queue.empty():
+            index = process_queue.get()
+            item_id = index.data(IDENTIFIER_ROLE)
+            if item_id in item_ids:
+                continue
+            item_ids.add(item_id)
+
+            new_index = self.add_task(parent_index=index)
+            if new_index is None:
+                break
+
     def _show_message(self, message):
         """Show message to user."""
         self._parent.show_message(message)
@@ -589,6 +613,13 @@ class HierarchyView(QtWidgets.QTreeView):
                     self._add_task_action
                 )
                 actions.append(add_task_action)
+
+        add_create_tasks = False
+        if len(item_ids) > 1:
+            item = items_by_id[item_ids[0]]
+            item_type = item.data(ITEM_TYPE_ROLE)
+            if item_type == "asset":
+                add_create_tasks = True
 
         # Remove delete tag on items
         removed_item_ids = []
@@ -637,6 +668,16 @@ class HierarchyView(QtWidgets.QTreeView):
             )
             actions.append(expand_action)
             actions.append(collapse_action)
+
+        if add_create_tasks:
+            create_tasks = QtWidgets.QAction(
+                "Create Tasks for Selected", 
+                context_menu
+            )
+            create_tasks.triggered.connect(
+                lambda: self._create_tasks(indexes)
+            )
+            actions.append(create_tasks)
 
         if not actions:
             return
