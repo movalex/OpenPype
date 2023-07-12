@@ -29,7 +29,8 @@
         }
     },
     "templated_workfile_build": {
-        "profiles": {
+        "profiles": [
+            {
                 "task_types": [
                     "Compositing"
                 ],
@@ -37,6 +38,7 @@
                 "path": "{root[work]}/{project[name]}/templates/comp.comp",
                 "keep_placeholder": true,
                 "create_first_version": true
-        }
+            }
+        ]
     }
 }
