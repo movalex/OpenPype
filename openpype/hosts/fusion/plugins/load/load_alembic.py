@@ -16,7 +16,7 @@ class FusionLoadAlembicMesh(load.LoaderPlugin):
     representations = ["*"]
     extensions = {"abc"}
 
-    label = "Load alembic mesh"
+    label = "Load Alembic mesh"
     order = -10
     icon = "code-fork"
     color = "orange"

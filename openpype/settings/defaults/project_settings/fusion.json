@@ -27,5 +27,16 @@
                 "farm_rendering"
             ]
         }
+    },
+    "templated_workfile_build": {
+        "profiles": {
+                "task_types": [
+                    "Compositing"
+                ],
+                "task_names": [],
+                "path": "{root[work]}/{project[name]}/templates/comp.comp",
+                "keep_placeholder": true,
+                "create_first_version": true
+        }
     }
 }

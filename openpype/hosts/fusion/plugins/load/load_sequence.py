@@ -162,12 +162,15 @@ class FusionLoadSequence(load.LoaderPlugin):
         # Create the Loader with the filename path set
         comp = get_current_comp()
         with comp_lock_and_undo_chunk(comp, "Create Loader"):
-            args = (-32768, -32768)
+            # If no X and Y data was passed, place the node on mouse location
+            x = data.get("x", -32768)
+            y = data.get("y", -32768)
+            args = (x, y)
             tool = comp.AddTool("Loader", *args)
             tool["Clip"] = path
 
             # Set global in point to start frame (if in version.data)
-            start = self._get_start(context["version"], tool)
+            start = self._get_start(context, tool)
             loader_shift(tool, start, relative=False)
 
             imprint_container(
@@ -231,7 +234,7 @@ class FusionLoadSequence(load.LoaderPlugin):
         path = get_representation_path_from_context(context)
 
         # Get start frame from version data
-        start = self._get_start(context["version"], tool)
+        start = self._get_start(context, tool)
 
         with comp_lock_and_undo_chunk(comp, "Update Loader"):
             # Update the loader's path whilst preserving some values
@@ -268,27 +271,30 @@ class FusionLoadSequence(load.LoaderPlugin):
         with comp_lock_and_undo_chunk(comp, "Remove Loader"):
             tool.Delete()
 
-    def _get_start(self, version_doc, tool):
+    def _get_start(self, context, tool):
         """Return real start frame of published files (incl. handles)"""
-        data = version_doc["data"]
+        version_data = context["version"]["data"]
 
         # Get start frame directly with handle if it's in data
-        start = data.get("frameStartHandle")
+        start = version_data.get("frameStartHandle")
         if start is not None:
             return start
 
         # Get frame start without handles
-        start = data.get("frameStart")
+        start = version_data.get("frameStart")
+
         if start is None:
-            self.log.warning(
-                "Missing start frame for version "
-                "assuming starts at frame 0 for: "
-                "{}".format(tool.Name)
-            )
-            return 0
+            start = context["asset"]["data"].get("frameStart")
+            if start is None:
+                self.log.warning(
+                    "Missing start frame for version "
+                    "assuming starts at frame 0 for: "
+                    "{}".format(tool.Name)
+                )
+                return 0
 
         # Use `handleStart` if the data is available
-        handle_start = data.get("handleStart")
+        handle_start = version_data.get("handleStart")
         if handle_start:
             start -= handle_start
 
