@@ -370,3 +370,16 @@ def comp_lock_and_undo_chunk(comp, undo_queue_name="Script CMD"):
     finally:
         comp.Unlock()
         comp.EndUndo()
+
+
+def get_names_from_nodes(nodes):
+    """Get list of nodes names.
+
+    Args:
+        List of nodes to convert into names.
+
+    Returns:
+        List[str]: Name of passed nodes.
+    """
+
+    return [node.Name for node in nodes]

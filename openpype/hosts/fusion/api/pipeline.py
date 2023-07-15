@@ -26,10 +26,15 @@ from openpype.host import HostBase, IWorkfileHost, ILoadHost, IPublishHost
 from openpype.tools.utils import host_tools
 
 
+from .workfile_template_builder import (
+    FusionPlaceholderLoadPlugin,
+    FusionPlaceholderCreatePlugin,
+)
+
+
 from .lib import (
     get_current_comp,
-    comp_lock_and_undo_chunk,
-    validate_comp_prefs
+    validate_comp_prefs,
 )
 
 log = Logger.get_logger(__name__)
@@ -141,11 +146,13 @@ class FusionHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
             return os.path.join(work_dir, scene_dir)
         else:
             return work_dir
+
     # endregion
 
     @contextlib.contextmanager
     def maintained_selection(self):
         from .lib import maintained_selection
+
         return maintained_selection()
 
     def get_containers(self):
@@ -158,6 +165,12 @@ class FusionHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
     def get_context_data(self):
         comp = get_current_comp()
         return comp.GetData("openpype") or {}
+
+    def get_workfile_build_placeholder_plugins(self):
+        return [
+            FusionPlaceholderLoadPlugin,
+            FusionPlaceholderCreatePlugin,
+        ]
 
 
 def on_new(event):
@@ -186,15 +199,17 @@ def on_after_open(event):
             if not frame:
                 print("Comp is closed, skipping show scene inventory")
                 return
-            frame.ActivateFrame()   # raise comp window
+            frame.ActivateFrame()  # raise comp window
             host_tools.show_scene_inventory()
 
         from openpype.widgets import popup
         from openpype.style import load_stylesheet
+
         dialog = popup.Popup(parent=menu.menu)
         dialog.setWindowTitle("Fusion comp has outdated content")
-        dialog.setMessage("There are outdated containers in "
-                          "your Fusion comp.")
+        dialog.setMessage(
+            "There are outdated containers in your Fusion comp."
+        )
         dialog.on_clicked.connect(_on_show_scene_inventory)
         dialog.show()
         dialog.raise_()
@@ -341,7 +356,6 @@ class FusionEventThread(QtCore.QThread):
     on_event = QtCore.Signal(dict)
 
     def run(self):
-
         app = getattr(sys.modules["__main__"], "app", None)
         if app is None:
             # No Fusion app found
