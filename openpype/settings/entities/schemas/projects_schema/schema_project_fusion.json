@@ -23,7 +23,8 @@
             "multiline" : true,
             "use_label_wrap": true,
             "key": "masterprefs",
-            "label": "Fusion MasterPrefs"
+            "label": "Fusion MasterPrefs",
+            "minimum_lines_count": 15
          },
         {
             "type": "dict",
