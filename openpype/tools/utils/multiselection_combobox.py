@@ -324,7 +324,8 @@ class MultiSelectionComboBox(QtWidgets.QComboBox):
                 + (2 * self.top_bottom_margins)
             )
         value.setHeight(
-            (lines * self._item_height) + (2 * self.top_bottom_margins)
+            (lines * self._item_height)
+            + (2 * self.top_bottom_margins)
         )
         return value
 
