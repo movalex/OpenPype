@@ -31,7 +31,7 @@ def enabled_savers(comp, savers):
         for saver in all_savers:
             original_state = saver.GetAttrs()[passthrough_key]
             original_states[saver.Name] = original_state
-            
+
             # The passthrough state we want to set (passthrough != enabled)
             state = saver.Name not in enabled_save_names
             if state != original_state:
