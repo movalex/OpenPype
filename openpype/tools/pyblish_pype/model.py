@@ -786,10 +786,14 @@ class InstanceModel(QtGui.QStandardItemModel):
 
     def update_with_result(self, result):
         instance = result["instance"]
-        if instance is None:
-            instance_id = self.controller.context.id
-        else:
-            instance_id = instance.id
+        try:
+            if instance is None:
+                instance_id = self.controller.context.id
+            else:
+                instance_id = instance.id
+        except AttributeError:
+            print(f"Instance type {type(instance)} have no id")
+            return
 
         item = self.instance_items.get(instance_id)
         if not item:
@@ -982,8 +986,12 @@ class TerminalModel(QtGui.QStandardItemModel):
         prepared_records = []
         instance_name = None
         instance = result["instance"]
-        if instance is not None:
-            instance_name = instance.data["name"]
+        try:
+            if instance is not None:
+                instance_name = instance.data["name"]
+        except AttributeError:
+            print(f"instance type {type(instance)} have no data")
+            return
 
         if not suspend_logs:
             for record in result.get("records") or []:
@@ -1029,6 +1037,9 @@ class TerminalModel(QtGui.QStandardItemModel):
         return prepared_records
 
     def append(self, record_items):
+        if not record_items:
+            print("No record items found")
+            return
         all_record_items = []
         for record_item in record_items:
             record_type = record_item["type"]
