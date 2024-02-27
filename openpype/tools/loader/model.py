@@ -998,7 +998,7 @@ class RepresentationSortProxyModel(GroupMemberFilterProxyModel):
         return super(RepresentationSortProxyModel, self).lessThan(left, right)
 
 
-class RepresentationModel(TreeModel, BaseRepresentationModel):
+class RepresentationModel(BaseRepresentationModel, TreeModel):
     doc_fetched = QtCore.Signal()
     refreshed = QtCore.Signal(bool)
 
