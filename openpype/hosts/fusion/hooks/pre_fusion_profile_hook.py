@@ -179,7 +179,7 @@ class FusionCopyPrefsPrelaunch(PreLaunchHook):
             "masterprefs", ""
         )
         master_pref_path = Path(folder, "fusion_masterprefs.prefs")
-        self.log.info(f"Writing {master_pref_path}..")
+        self.log.info(f"Writing {master_pref_path}")
         with open(master_pref_path, "w") as f:
             f.write(master_pref_contents)
 
@@ -192,8 +192,7 @@ class FusionCopyPrefsPrelaunch(PreLaunchHook):
             master_prefs = Path(
                 FUSION_HOST_DIR, "deploy", "ayon", "fusion_shared.prefs")
         else:
-            master_prefs = Path(
-                FUSION_HOST_DIR, "deploy", "openpype", "fusion_shared.prefs")
+            master_prefs = Path(master_pref_path)
 
         self.log.info(f"Setting {master_prefs_variable}: {master_prefs}")
         self.launch_context.env[master_prefs_variable] = str(master_prefs)
