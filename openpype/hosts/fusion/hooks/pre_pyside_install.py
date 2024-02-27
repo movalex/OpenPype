@@ -44,7 +44,7 @@ class InstallPySideToFusion(PreLaunchHook):
         if platform.system().lower() == "windows":
             exe_filenames = ["python.exe"]
         else:
-            exe_filenames = ["python3", "python"]
+            exe_filenames = ["bin/python3", "bin/python"]
 
         for exe_filename in exe_filenames:
             python_executable = os.path.join(fusion_python3_home, exe_filename)
@@ -135,7 +135,7 @@ class InstallPySideToFusion(PreLaunchHook):
                 "pip",
                 "install",
                 "--ignore-installed",
-                "PySide2",
+                "PySide6",
             ]
             process = subprocess.Popen(
                 args, stdout=subprocess.PIPE, universal_newlines=True,
@@ -154,7 +154,7 @@ class InstallPySideToFusion(PreLaunchHook):
             pass
 
     def _is_pyside_installed(self, python_executable):
-        """Check if PySide2 module is in fusion's pip list."""
+        """Check if PySide module is in fusion's pip list."""
         args = [python_executable, "-c", "from qtpy import QtWidgets"]
         process = subprocess.Popen(args,
                                    stdout=subprocess.PIPE,
