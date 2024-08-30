@@ -101,7 +101,7 @@ def containerise(timeline_item,
                  context,
                  loader=None,
                  data=None):
-    """Bundle Hiero's object into an assembly and imprint it with metadata
+    """Bundle Resolve's object into an assembly and imprint it with metadata
 
     Containerisation enables a tracking of version, author and origin
     for loaded assets.
