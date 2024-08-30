@@ -36,6 +36,25 @@
             "scene_patches": [],
             "strict_error_checking": true
         },
+        "HoudiniCacheSubmitDeadline": {
+            "enabled": true,
+            "optional": false,
+            "active": true,
+            "priority": 50,
+            "chunk_size": 999999,
+            "group": ""
+        },
+        "HoudiniSubmitDeadline": {
+            "enabled": true,
+            "optional": false,
+            "active": true,
+            "priority": 50,
+            "chunk_size": 1,
+            "group": "",
+            "export_priority": 50,
+            "export_chunk_size": 10,
+            "export_group": ""
+        },
         "MaxSubmitDeadline": {
             "enabled": true,
             "optional": false,
@@ -129,6 +148,7 @@
             "deadline_priority": 50,
             "publishing_script": "",
             "skip_integration_repre_list": [],
+            "families_transfer": ["render3d", "render2d", "ftrack", "slate"],
             "aov_filter": {
                 "maya": [
                     ".*([Bb]eauty).*"
