@@ -546,7 +546,7 @@ class HierarchyView(QtWidgets.QTreeView):
                     row, 0, index
                 ))
 
-    def _create_tasks(self, indexes):
+    def _create_tasks(self, indexes, task_data):
         """Create task for each selected asset
 
         Args:
@@ -557,7 +557,6 @@ class HierarchyView(QtWidgets.QTreeView):
         for index in indexes:
             if index.column() == 0:
                 process_queue.put(index)
-
         while not process_queue.empty():
             index = process_queue.get()
             item_id = index.data(IDENTIFIER_ROLE)
@@ -565,7 +564,6 @@ class HierarchyView(QtWidgets.QTreeView):
                 continue
             item_ids.add(item_id)
             parent_item = self._source_model._items_by_id[item_id]
-            task_data = {"name": "Compositing", "type": "Compositing"}
             task_item = TaskItem(task_data, True)
             self._source_model.add_item(task_item, parent_item)
 
@@ -598,6 +596,7 @@ class HierarchyView(QtWidgets.QTreeView):
             items_by_id[item_id] = self._source_model.items_by_id[item_id]
 
         item_ids = tuple(items_by_id.keys())
+        add_create_tasks = False
         if len(item_ids) == 1:
             item = items_by_id[item_ids[0]]
             item_type = item.data(ITEM_TYPE_ROLE)
@@ -614,13 +613,12 @@ class HierarchyView(QtWidgets.QTreeView):
                     self._add_task_action
                 )
                 actions.append(add_task_action)
+                add_create_tasks = True
 
-        add_create_tasks = False
         if len(item_ids) > 1:
             item = items_by_id[item_ids[0]]
             item_type = item.data(ITEM_TYPE_ROLE)
-            if item_type == "asset":
-                add_create_tasks = True
+            add_create_tasks = True
 
         # Remove delete tag on items
         removed_item_ids = []
@@ -671,14 +669,24 @@ class HierarchyView(QtWidgets.QTreeView):
             actions.append(collapse_action)
 
         if add_create_tasks:
-            create_tasks = QtWidgets.QAction(
-                "Create Tasks for Selected", 
+            compositing_data = {"name": "Compositing", "type": "Compositing"}
+            grading_data = {"name": "ColorGrading", "type": "ColorGrading"}
+            create_compositing_tasks = QtWidgets.QAction(
+                "Create Compositing Task", 
                 context_menu
             )
-            create_tasks.triggered.connect(
-                lambda: self._create_tasks(indexes)
+            create_grading_tasks = QtWidgets.QAction(
+                "Create ColorGrading Task", 
+                context_menu
             )
-            actions.append(create_tasks)
+            create_compositing_tasks.triggered.connect(
+                lambda: self._create_tasks(indexes, compositing_data)
+            )
+            create_grading_tasks.triggered.connect(
+                lambda: self._create_tasks(indexes, grading_data)
+            )
+            actions.append(create_compositing_tasks)
+            actions.append(create_grading_tasks)
 
         if not actions:
             return
