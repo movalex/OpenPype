@@ -613,6 +613,12 @@ class HierarchyView(QtWidgets.QTreeView):
                     self._add_task_action
                 )
                 actions.append(add_task_action)
+                add_create_tasks = True
+
+        if len(item_ids) > 1:
+            item = items_by_id[item_ids[0]]
+            item_type = item.data(ITEM_TYPE_ROLE)
+            add_create_tasks = True
 
         # Remove delete tag on items
         removed_item_ids = []
