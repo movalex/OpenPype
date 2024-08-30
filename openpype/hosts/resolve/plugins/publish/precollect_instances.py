@@ -103,21 +103,25 @@ class PrecollectInstances(pyblish.api.ContextPlugin):
         assert data.get("otioClip"), "Missing `otioClip` data"
 
         # solve source resolution option
-        if data.get("sourceResolution", None):
-            otio_clip_metadata = data[
-                "otioClip"].media_reference.metadata
-            data.update({
-                "resolutionWidth": otio_clip_metadata["width"],
-                "resolutionHeight": otio_clip_metadata["height"],
-                "pixelAspect": otio_clip_metadata["pixelAspect"]
-            })
-        else:
-            otio_tl_metadata = context.data["otioTimeline"].metadata
-            data.update({
-                "resolutionWidth": otio_tl_metadata["width"],
-                "resolutionHeight": otio_tl_metadata["height"],
-                "pixelAspect": otio_tl_metadata["pixelAspect"]
-            })
+        try:
+            if data.get("sourceResolution", None):
+                otio_clip_metadata = data[
+                    "otioClip"].media_reference.metadata
+                data.update({
+                    "resolutionWidth": otio_clip_metadata["width"],
+                    "resolutionHeight": otio_clip_metadata["height"],
+                    "pixelAspect": otio_clip_metadata["pixelAspect"]
+                })
+            else:
+                otio_tl_metadata = context.data["otioTimeline"].metadata
+                data.update({
+                    "resolutionWidth": otio_tl_metadata["width"],
+                    "resolutionHeight": otio_tl_metadata["height"],
+                    "pixelAspect": otio_tl_metadata["pixelAspect"]
+                })
+        except Exception as e:
+            print("Failed to get resolution.")
+            raise
 
     def create_shot_instance(self, context, timeline_item, **data):
         hero_track = data.get("heroTrack")
